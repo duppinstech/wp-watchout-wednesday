@@ -1,0 +1,48 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs/temp
+*.log
+*.tmp
+*.bak
+
+# Dependency/build artifacts
+node_modules/
+vendor/
+coverage/
+build/
+dist/
+
+# Optional lock/cache files (uncomment if used)
+# composer.lock
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+# .phpunit.result.cache
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+node_modules/
+vendor/
+composer.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.zip
+/.phpunit.result.cache
+/coverage/
+/build/
+/dist/
