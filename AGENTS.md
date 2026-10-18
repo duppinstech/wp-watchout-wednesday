@@ -8,7 +8,7 @@
 - **Prefix:** `wow_`
 - **Text domain:** `watch-out-wednesday`
 - **Floor:** WordPress 6.0, PHP 7.4 (`readme.txt`). Tested up to 6.9.
-- **Version:** 1.1.0
+- **Version:** 1.2.0
 - **License:** GPL-2.0-or-later
 - **Repo:** public. `origin` is https://github.com/oduppinsjr/wp-watchout-wednesday. GitHub's canonical URL is https://github.com/duppinstech/wp-watchout-wednesday.
 - **Distribution:** GitHub Release zip on `v*` tags. Not published on WordPress.org. `readme.txt` is kept in WordPress.org form.
@@ -25,7 +25,7 @@ Watch Out Wednesday is a WordPress plugin that pulls vulnerability intelligence 
 
 It exists so a site can keep that recap on a schedule. Operators can also rerun one missed Wednesday or backfill older weeks from the settings screen.
 
-This repository is the plugin. It is not a Composer package and it does not produce a compiled build.
+This repository is the plugin. It has no runtime Composer dependencies. Development tests use Composer. It does not produce a compiled build.
 
 ## Architecture
 
@@ -33,6 +33,7 @@ This repository is the plugin. It is not a Composer package and it does not prod
 - `includes/admin-settings.php` — Settings page at Settings → Watch Out Wednesday, with Content, Manual Run, and Authentication tabs. Registers `wow_settings`.
 - `includes/post-generator.php` — Fetches Wordfence, writes or updates the Wednesday post, sets the featured image and Yoast meta, and sends mail with `wp_mail`.
 - `includes/email-handler.php` — Legacy include. No functions. Mail lives in `post-generator.php`.
+- `uninstall.php` — Deletes `wow_settings`, `wow_last_run`, the admin-notice transient, and `wow_weekly_cron_event`. Generated posts stay.
 - `js/admin-script.js` — jQuery on the settings screen. Tab switching and the featured-image media frame.
 - `css/admin-style.css` — Admin styles for the settings screen.
 
@@ -48,11 +49,11 @@ Lint. No linter and no formatter are configured. Do not add one unless asked.
 
 Syntax check, same command as CI:
 
-`find . -name '*.php' -not -path './.git/*' -print0 | xargs -0 -n1 php -l`
+`find . -name '*.php' -not -path './.git/*' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l`
 
-CI runs that check on PHP 7.4 only (`.github/workflows/ci.yml`).
+CI runs that check, then `vendor/bin/phpunit`, on PHP 7.4 (`.github/workflows/ci.yml`).
 
-Test. No test command. Do not invent `phpunit` or `npm test`.
+Test. `composer install`, then `vendor/bin/phpunit`. There is no `npm test`.
 
 Build. `bash bin/build-zip.sh <output.zip>` writes the release zip. `.github/workflows/release.yml` runs it on `v*` tags. Do not commit a zip.
 
@@ -84,7 +85,7 @@ Build. `bash bin/build-zip.sh <output.zip>` writes the release zip. `.github/wor
 | `support-docs-reviewer` | `README.md`, `readme.txt`, `CHANGELOG.md`, admin messages, and i18n. |
 | `release-ops-reviewer` | Release readiness: compatibility, zip contents, uninstall, and rollback. |
 | `ux-reviewer` | Admin and front-end accessibility and layout. |
-| `test-writer` | PHPUnit tests. No suite in this repo yet. |
+| `test-writer` | PHPUnit tests in `tests/unit/`. |
 | `research` | WordPress, library, and third-party API questions. No code edits. |
 
 Slash commands in `.claude/commands/`: `/review`, `/department-review`, `/deploy`, `/scaffold`.

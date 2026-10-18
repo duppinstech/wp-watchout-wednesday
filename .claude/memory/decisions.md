@@ -41,3 +41,11 @@ Append-only log. Format: `## YYYY-MM-DD — Title`, then **Context** / **Decisio
 **Decision:** Sites receive updates from the GitHub Release zip built on `v*` tags. The price is free. `readme.txt` stays in WordPress.org form. The API key stays a settings field. An updater is added after this scaffold.
 
 **Consequences:** `release.yml` and `bin/build-zip.sh` produce the zip. Zips are not committed. There is no WordPress.org listing.
+
+## 2026-10-18 — Accept the department-review recommendations
+
+**Context:** The full review of 1.1.0 is in `.claude/reviews/2026-10-18-0153-full-plugin-review.md`. Odell accepted the recommendations and asked for the fixes before any release tag.
+
+**Decision:** Build them in 1.2.0. Do not publish an empty week. Send one summary email for a bulk backfill. List every affected software item. Add the accuracy sentence, the non-affiliation line, and feed attribution (copyright field, source links, Defiant line). Keep “Run current week now” dated on the coming Wednesday and say when WordPress has scheduled it. Make that button primary. Report vulnerabilities to support@duppinstech.com. Do not tag a release in this change.
+
+**Consequences:** Version 1.2.0. A `v1.2.0` tag is a later step, after the staging smoke test.

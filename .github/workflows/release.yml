@@ -45,6 +45,8 @@ jobs:
           grep -qx 'watch-out-wednesday/watch-out-wednesday.php' zip-list.txt || { echo "::error::Main file missing from zip"; exit 1; }
           leaked="$(grep -E '^watch-out-wednesday/(\.claude|\.github|tests|CLAUDE|AGENTS)' zip-list.txt || true)"
           [ -z "$leaked" ] || { echo "::error::Dev files in zip (check .distignore):"; echo "$leaked"; exit 1; }
+          secret="$(grep -E '^watch-out-wednesday/(\.git|\.env)' zip-list.txt || true)"
+          [ -z "$secret" ] || { echo "::error::Git or env paths in zip:"; echo "$secret"; exit 1; }
 
       - name: Extract changelog section
         run: |

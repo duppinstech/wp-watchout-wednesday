@@ -1,13 +1,16 @@
 jQuery(document).ready(function ($) {
     const $tabs = $('#wow-settings-tabs .nav-tab');
     const $panels = $('.wow-tab-panel');
+    const strings = window.wowAdmin || {};
 
     function wowShowTab(targetId) {
-        $tabs.removeClass('nav-tab-active');
-        $tabs.filter(`[href="${targetId}"]`).addClass('nav-tab-active');
-        $panels.hide();
-        $(targetId).show();
+        $tabs.removeClass('nav-tab-active').attr('aria-selected', 'false');
+        $tabs.filter('[href="' + targetId + '"]').addClass('nav-tab-active').attr('aria-selected', 'true');
+        $panels.hide().attr('hidden', 'hidden');
+        $(targetId).show().removeAttr('hidden');
     }
+
+    $panels.not('#wow-tab-content').hide().attr('hidden', 'hidden');
 
     $tabs.on('click', function (e) {
         e.preventDefault();
@@ -24,29 +27,59 @@ jQuery(document).ready(function ($) {
     $('#wow_select_image_button').on('click', function (e) {
         e.preventDefault();
 
-        // If the uploader already exists, open it
         if (mediaUploader) {
             mediaUploader.open();
             return;
         }
 
-        // Create a new media uploader
         mediaUploader = wp.media({
-            title: 'Select Featured Image',
+            title: strings.mediaTitle || 'Select Featured Image',
             button: {
-                text: 'Use this image'
+                text: strings.mediaButton || 'Use this image'
             },
             multiple: false
         });
 
-        // When image is selected
         mediaUploader.on('select', function () {
             const attachment = mediaUploader.state().get('selection').first().toJSON();
+            const alt = attachment.title || strings.imageAlt || 'Selected featured image';
+            const $img = $('<img>', {
+                src: attachment.url,
+                alt: alt,
+                css: {
+                    maxWidth: '300px',
+                    display: 'block',
+                    marginTop: '10px'
+                }
+            });
+
+            if (attachment.width) {
+                $img.attr('width', attachment.width);
+            }
+            if (attachment.height) {
+                $img.attr('height', attachment.height);
+            }
+
             $('#wow_featured_image').val(attachment.url);
-            $('#wow_image_preview').html(`<img src="${attachment.url}" style="max-width: 300px; display:block; margin-top:10px;" />`);
+            $('#wow_image_preview').empty().append($img);
         });
 
-        // Open the uploader
         mediaUploader.open();
+    });
+
+    $('#wow_remove_image_button').on('click', function (e) {
+        e.preventDefault();
+        $('#wow_featured_image').val('');
+        $('#wow_image_preview').empty();
+    });
+
+    $('#wow-bulk-form').on('submit', function (e) {
+        const count = parseInt($('#wow_bulk_count').val(), 10);
+        if (count > 1) {
+            const template = strings.bulkConfirm || 'Publish %d Watch Out Wednesday posts?';
+            if (!window.confirm(template.replace('%d', String(count)))) {
+                e.preventDefault();
+            }
+        }
     });
 });

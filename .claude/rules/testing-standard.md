@@ -18,7 +18,7 @@ paths:
 3. If you touched the updater, test the Check Again flow against a draft release.
 
 ## Automated tests
-No suite yet; see PLAN.md.
+`composer install`, then `vendor/bin/phpunit`. See `tests/unit/`.
 - Location, once a runner is chosen: `tests/unit/` (Brain Monkey) and `tests/integration/` (wp-phpunit). Naming: `Test_<Class_Name>.php`, methods `test_<behavior>_<condition>`.
 - Every bug fix ships with a regression test that fails before the fix. Unit tests never hit the network.
 - CI runs `php -l` on PHP 7.4 (`.github/workflows/ci.yml`).

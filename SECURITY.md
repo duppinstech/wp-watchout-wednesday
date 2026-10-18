@@ -6,7 +6,7 @@ Security fixes are provided for the latest version on `main`.
 
 ## Reporting a Vulnerability
 
-Please report vulnerabilities privately by emailing the maintainer listed in the plugin metadata.
+Please report vulnerabilities privately to support@duppinstech.com.
 
 When reporting, include:
 

@@ -7,11 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## 1.1.0 - 2026-04-28
+## [1.2.0] - 2026-10-18
 
-- Added manual run controls in plugin settings.
-- Added single-date rerun for missed weeks.
-- Added bulk backfill for historical missed weeks.
-- Moved plugin menu location under `Settings`.
-- Hardened plugin security (nonce checks, escaping, sanitization, direct file access guards).
-- Added project documentation and repository bootstrap files.
+### Added
+- Site-local Wednesday titles and post dates. A rerun still finds a post saved under the old off-by-one title.
+- `uninstall.php`. Deleting the plugin removes its settings, the stored API key, and the weekly cron. Generated posts stay.
+- Attribution on every generated post, including a record’s copyright notice and source links when the feed provides them.
+- One summary email for a bulk backfill, instead of one email per week.
+- PHPUnit tests for the feed, settings merge, Wednesday dates, and manual-run checks. Run `composer install` and `vendor/bin/phpunit`.
+
+### Changed
+- **Enable weekly posts can be turned off.** Saving the Content tab with the switch unchecked unschedules the weekly cron.
+- **A week with no vulnerabilities is saved as a draft.** It is not published.
+- **The weekly cron publishes the Wednesday that was due**, including when WP-Cron runs late.
+- The post lists every affected plugin or theme on a vulnerability, not only the first.
+- The Wordfence API key is not shown on the settings screen. Leave the field blank to keep the saved key.
+- The saved feed URL must be a public https address. Requests do not follow redirects.
+- Settings fields have labels, and the weekly-post switch can be focused from the keyboard.
+- “Run Current Week Now” is the primary button. A backfill of more than one week asks for confirmation.
+
+### Security
+- Settings saves and manual runs require a logged-in administrator and a valid request.
+- Report vulnerabilities to support@duppinstech.com.
+
+## [1.1.0] - 2026-04-28
+
+### Added
+- Manual run, missed-Wednesday rerun, and bulk backfill on the settings screen.
+
+### Changed
+- **The settings screen is under Settings → Watch Out Wednesday.**
+
+### Security
+- Settings saves and manual runs require a logged-in administrator and a valid request.

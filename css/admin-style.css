@@ -2,38 +2,51 @@
 .wow-switch {
     position: relative;
     display: inline-block;
-    width: 48px; /* Reduced width */
-    height: 24px; /* Reduced height */
+    width: 48px;
+    height: 24px;
+    padding: 10px;
+    box-sizing: content-box;
+    vertical-align: middle;
 }
 
 .wow-switch input {
+    position: absolute;
     opacity: 0;
-    width: 0;
-    height: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    top: 0;
+    left: 0;
+    cursor: pointer;
 }
 
 .wow-slider {
     position: absolute;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    background-color: #787c82;
     transition: .4s;
-    border-radius: 24px; /* Adjusted for smaller height */
+    border-radius: 24px;
 }
 
 .wow-slider:before {
     position: absolute;
     content: "";
-    height: 16px; /* Smaller size */
-    width: 16px; /* Smaller size */
+    height: 16px;
+    width: 16px;
     left: 4px;
     bottom: 4px;
-    background-color: white;
+    background-color: #fff;
     transition: .4s;
     border-radius: 50%;
+}
+
+.wow-switch input:focus-visible + .wow-slider {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
 }
 
 .wow-switch input:checked + .wow-slider {
@@ -41,9 +54,22 @@
 }
 
 .wow-switch input:checked + .wow-slider:before {
-    transform: translateX(24px); /* Adjusted for smaller width */
+    transform: translateX(24px);
 }
 
 .wow-tab-panel {
     margin-top: 16px;
+}
+
+.wow-tab-panel textarea,
+.wow-tab-panel input.regular-text {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wow-slider,
+    .wow-slider:before {
+        transition: none;
+    }
 }

@@ -11,9 +11,17 @@
 .distignore
 .editorconfig
 .env
+.env.*
 .env.example
+*.sql
+*.log
 .phpunit.result.cache
 node_modules
+vendor
+build
+dist
+coverage
+composer.json
 bin
 tests
 docs

@@ -1,0 +1,17 @@
+{
+  "name": "duppinstech/watch-out-wednesday",
+  "description": "Development dependencies for the Watch Out Wednesday WordPress plugin.",
+  "license": "GPL-2.0-or-later",
+  "type": "wordpress-plugin",
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6",
+    "brain/monkey": "^2.6",
+    "yoast/phpunit-polyfills": "^1.1"
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
+}
