@@ -46,3 +46,10 @@ pnpm-lock.yaml
 /coverage/
 /build/
 /dist/
+
+.env*
+__pycache__/
+.venv/
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/worktrees/
