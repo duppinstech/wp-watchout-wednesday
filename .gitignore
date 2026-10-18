@@ -46,3 +46,19 @@ pnpm-lock.yaml
 /coverage/
 /build/
 /dist/
+
+.env*
+__pycache__/
+.venv/
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/worktrees/
+
+# --- Duppins Technology scaffold ---
+.env
+.env.*
+!.env.example
+/*.zip
+.phpunit.result.cache
+.claude/scheduled_tasks.lock
+desktop.ini
