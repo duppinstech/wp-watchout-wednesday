@@ -32,3 +32,20 @@ WordPress plugin that pulls vulnerability intelligence from Wordfence and publis
 ## License
 
 GPL-2.0-or-later
+
+## Local development
+
+1. Clone this repository.
+2. Copy the directory into a local WordPress site as `wp-content/plugins/watch-out-wednesday`.
+3. WordPress 6.0+ and PHP 7.4+ are required (`readme.txt`).
+4. Activate **Watch Out Wednesday** and open `Settings -> Watch Out Wednesday`.
+
+There is no Composer or npm install.
+
+## Tests
+
+No test suite is checked in. There is no `phpunit` or `npm test` command. CI runs `php -l` on each `*.php` file.
+
+## Release / deploy
+
+The plugin is shipped as this source tree. There is no build step and no release workflow. Do not commit `*.zip`. When a package is needed, zip the plugin directory locally and tag the version that matches the Stable tag in `readme.txt`.
