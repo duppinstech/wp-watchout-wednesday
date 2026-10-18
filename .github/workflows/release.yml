@@ -1,0 +1,64 @@
+name: Release
+
+# Push a tag like v1.2.0 (matching `Version:` in watch-out-wednesday.php).
+# Builds the zip and creates the GitHub Release with the zip attached in one step,
+# so an updater never sees a release without its asset.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+
+      - name: Lint
+        run: |
+          find . -name '*.php' -not -path './vendor/*' -print0 \
+            | xargs -0 -n1 sh -c 'php -l "$0" || exit 1' > "$RUNNER_TEMP/lint.log" 2>&1 \
+            || { grep -v '^No syntax errors' "$RUNNER_TEMP/lint.log"; exit 1; }
+
+      - name: Check version matches tag
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          header="$(sed -n 's/^[[:space:]*]*Version:[[:space:]]*//p' watch-out-wednesday.php | head -1 | tr -d '\r')"
+          echo "tag=$tag header=$header"
+          [ "$tag" = "$header" ] || { echo "::error::Tag v$tag does not match plugin Version $header"; exit 1; }
+
+      - name: Build zip
+        run: bash bin/build-zip.sh "$PWD/watch-out-wednesday.zip"
+
+      - name: Verify zip layout
+        run: |
+          unzip -Z1 watch-out-wednesday.zip > zip-list.txt
+          bad="$(grep -v '^watch-out-wednesday/' zip-list.txt || true)"
+          [ -z "$bad" ] || { echo "::error::Unexpected paths in zip:"; echo "$bad"; exit 1; }
+          grep -qx 'watch-out-wednesday/watch-out-wednesday.php' zip-list.txt || { echo "::error::Main file missing from zip"; exit 1; }
+          leaked="$(grep -E '^watch-out-wednesday/(\.claude|\.github|tests|CLAUDE|AGENTS)' zip-list.txt || true)"
+          [ -z "$leaked" ] || { echo "::error::Dev files in zip (check .distignore):"; echo "$leaked"; exit 1; }
+
+      - name: Extract changelog section
+        run: |
+          ver="${GITHUB_REF_NAME#v}"
+          awk -v h="## [$ver]" 'index($0, h) == 1 {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "Release $GITHUB_REF_NAME" > notes.md
+
+      - name: Create release (or update the asset if it exists)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" watch-out-wednesday.zip --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" watch-out-wednesday.zip \
+              --title "Watch Out Wednesday $GITHUB_REF_NAME" --notes-file notes.md --verify-tag
+          fi
