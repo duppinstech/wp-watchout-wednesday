@@ -73,6 +73,11 @@ class Test_Feed extends Wow_Test_Case {
 		$this->assertTrue( wow_ip_is_non_global( '192.168.0.5' ) );
 		$this->assertTrue( wow_ip_is_non_global( '169.254.1.1' ) );
 		$this->assertFalse( wow_ip_is_non_global( '8.8.8.8' ) );
+		$this->assertTrue( wow_feed_exceeds_memory( 120 * 1048576, 256 * 1048576, 40 * 1048576 ) );
+		$this->assertFalse( wow_feed_exceeds_memory( 1024, 256 * 1048576, 40 * 1048576 ) );
+		$this->assertFalse( wow_feed_exceeds_memory( 120 * 1048576, 0, 40 * 1048576 ) );
+		$this->assertSame( 268435456, wow_ini_bytes( '256M' ) );
+		$this->assertSame( 0, wow_ini_bytes( '-1' ) );
 		$this->assertFalse( wow_is_public_https_url( 'http://www.wordfence.com/api/intelligence/v3/vulnerabilities/production' ) );
 		$this->assertFalse( wow_is_public_https_url( 'https://127.0.0.1/feed' ) );
 		$this->assertTrue( wow_is_public_https_url( 'https://www.wordfence.com/api/intelligence/v3/vulnerabilities/production' ) );

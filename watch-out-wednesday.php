@@ -3,7 +3,7 @@
  * Plugin Name: Watch Out Wednesday
  * Plugin URI: https://github.com/duppinstech/wp-watchout-wednesday
  * Description: Publishes a weekly Watch Out Wednesday post from the Wordfence Intelligence vulnerability feed. You supply the API key.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: Duppins Technology
  * Author URI: https://duppinstech.com
  * License: GPL-2.0-or-later
@@ -143,7 +143,32 @@ function wow_run_weekly_task() {
 		return false;
 	}
 
-	return wow_generate_post( wow_most_recent_wednesday_ymd() );
+	try {
+		return wow_generate_post( wow_most_recent_wednesday_ymd() );
+	} catch ( Exception $exception ) {
+		wow_send_error_email( $exception->getMessage() );
+		return new WP_Error( 'wow_run_failed', $exception->getMessage() );
+	} catch ( Error $exception ) {
+		wow_send_error_email( $exception->getMessage() );
+		return new WP_Error( 'wow_run_failed', $exception->getMessage() );
+	}
+}
+
+/**
+ * Turn an unexpected crash into a settings notice instead of a blank server error.
+ *
+ * @param Exception|Error $exception Caught failure.
+ * @return array
+ */
+function wow_run_exception_notice( $exception ) {
+	return array(
+		'type'    => 'error',
+		'message' => sprintf(
+			/* translators: %s: error message returned by PHP. */
+			__( 'The run stopped before it finished: %s', 'watch-out-wednesday' ),
+			$exception->getMessage()
+		),
+	);
 }
 
 /**
@@ -158,8 +183,8 @@ function wow_enqueue_admin_assets( $hook ) {
 	$script_path = plugin_dir_path( __FILE__ ) . 'js/admin-script.js';
 
 	wp_enqueue_media();
-	wp_enqueue_style( 'wow-admin-style', plugin_dir_url( __FILE__ ) . 'css/admin-style.css', array(), file_exists( $style_path ) ? filemtime( $style_path ) : '1.2.0' );
-	wp_enqueue_script( 'wow-admin-script', plugin_dir_url( __FILE__ ) . 'js/admin-script.js', array( 'jquery' ), file_exists( $script_path ) ? filemtime( $script_path ) : '1.2.0', true );
+	wp_enqueue_style( 'wow-admin-style', plugin_dir_url( __FILE__ ) . 'css/admin-style.css', array(), file_exists( $style_path ) ? filemtime( $style_path ) : '1.2.1' );
+	wp_enqueue_script( 'wow-admin-script', plugin_dir_url( __FILE__ ) . 'js/admin-script.js', array( 'jquery' ), file_exists( $script_path ) ? filemtime( $script_path ) : '1.2.1', true );
 	wp_localize_script(
 		'wow-admin-script',
 		'wowAdmin',
@@ -176,7 +201,13 @@ function wow_enqueue_admin_assets( $hook ) {
  * admin-post handler. The work lives in wow_process_manual_run() so tests can call it.
  */
 function wow_handle_manual_run_request() {
-	$result = wow_process_manual_run( wp_unslash( $_POST ) );
+	try {
+		$result = wow_process_manual_run( wp_unslash( $_POST ) );
+	} catch ( Exception $exception ) {
+		$result = wow_run_exception_notice( $exception );
+	} catch ( Error $exception ) {
+		$result = wow_run_exception_notice( $exception );
+	}
 
 	if ( is_wp_error( $result ) ) {
 		wp_die( esc_html( $result->get_error_message() ) );
@@ -273,7 +304,8 @@ function wow_process_manual_run( $post ) {
  */
 function wow_run_bulk_backfill( $end_ymd, $count, $vulnerabilities ) {
 	$dates     = wow_bulk_wednesday_dates( $end_ymd, $count );
-	$deadline  = time() + 20;
+	$prepared  = wow_normalize_feed( $vulnerabilities );
+	unset( $vulnerabilities );
 	$published = 0;
 	$drafts    = 0;
 	$failed    = array();
@@ -282,12 +314,12 @@ function wow_run_bulk_backfill( $end_ymd, $count, $vulnerabilities ) {
 	$email     = isset( $options['email'] ) ? $options['email'] : '';
 
 	foreach ( $dates as $index => $ymd ) {
-		if ( $index > 0 && time() >= $deadline ) {
+		if ( $index > 0 && wow_seconds_remaining() < 5 ) {
 			$not_run = array_slice( $dates, $index );
 			break;
 		}
 
-		$result = wow_generate_post( $ymd, $vulnerabilities, false );
+		$result = wow_generate_post( $ymd, $prepared, false );
 		if ( is_wp_error( $result ) ) {
 			$failed[] = $ymd;
 			continue;

@@ -553,6 +553,7 @@ function wow_fetch_vulnerabilities() {
 
 	$status_code   = (int) wp_remote_retrieve_response_code( $response );
 	$response_body = (string) wp_remote_retrieve_body( $response );
+	unset( $response );
 
 	if ( 200 !== $status_code ) {
 		if ( 401 === $status_code ) {
@@ -579,7 +580,24 @@ function wow_fetch_vulnerabilities() {
 		);
 	}
 
+	$body_length = strlen( $response_body );
+	if ( wow_feed_exceeds_memory( $body_length, wow_ini_bytes( ini_get( 'memory_limit' ) ), memory_get_usage( true ) ) ) {
+		$size_mb = max( 1, (int) round( $body_length / 1048576 ) );
+		$limit   = ini_get( 'memory_limit' );
+		unset( $response_body );
+		return new WP_Error(
+			'wow_wordfence_memory',
+			sprintf(
+				/* translators: 1: feed size in megabytes, 2: PHP memory_limit value. */
+				__( 'The Wordfence feed is about %1$d MB. PHP memory_limit on this site is %2$s, which is too low to read that file. The run stopped instead of crashing. Raise memory_limit to at least 512M, then try again.', 'watch-out-wednesday' ),
+				$size_mb,
+				$limit ? $limit : __( 'unknown', 'watch-out-wednesday' )
+			)
+		);
+	}
+
 	$data = json_decode( $response_body, true );
+	unset( $response_body );
 	if ( ! is_array( $data ) ) {
 		return new WP_Error(
 			'wow_wordfence_parse',
@@ -619,6 +637,198 @@ function wow_parse_feed_datetime( $value ) {
 }
 
 /**
+ * Convert a php.ini size such as 256M into bytes. Zero means unlimited or unknown.
+ *
+ * @param mixed $value ini value.
+ * @return int
+ */
+function wow_ini_bytes( $value ) {
+	$value = trim( (string) $value );
+	if ( '' === $value || '-1' === $value ) {
+		return 0;
+	}
+
+	$unit   = strtolower( substr( $value, -1 ) );
+	$number = (int) $value;
+	if ( 'g' === $unit ) {
+		return $number * 1073741824;
+	}
+	if ( 'm' === $unit ) {
+		return $number * 1048576;
+	}
+	if ( 'k' === $unit ) {
+		return $number * 1024;
+	}
+
+	return (int) $value;
+}
+
+/**
+ * Whether decoding this feed would exhaust the PHP memory limit.
+ *
+ * @param int $body_length JSON size in bytes.
+ * @param int $memory_limit memory_limit in bytes, or 0 when unlimited.
+ * @param int $memory_used Bytes already in use.
+ * @return bool
+ */
+function wow_feed_exceeds_memory( $body_length, $memory_limit, $memory_used ) {
+	if ( (int) $memory_limit <= 0 ) {
+		return false;
+	}
+
+	$needed = ( (int) $body_length * 4 ) + 33554432;
+
+	return ( (int) $memory_used + $needed ) >= (int) $memory_limit;
+}
+
+/**
+ * Seconds left in this request before PHP is likely to abort it.
+ *
+ * @return int
+ */
+function wow_seconds_remaining() {
+	$limit = (int) ini_get( 'max_execution_time' );
+	$now   = time();
+	if ( $limit <= 0 ) {
+		return 45;
+	}
+
+	$started = isset( $_SERVER['REQUEST_TIME'] ) ? (int) $_SERVER['REQUEST_TIME'] : $now;
+
+	return ( $started + $limit ) - $now - 8;
+}
+
+/**
+ * Feed values are not always strings. Return text, or an empty string.
+ *
+ * @param mixed $value Field value.
+ * @return string
+ */
+function wow_feed_text( $value ) {
+	if ( is_int( $value ) || is_float( $value ) ) {
+		$value = (string) $value;
+	}
+	if ( ! is_string( $value ) ) {
+		return '';
+	}
+
+	return sanitize_text_field( $value );
+}
+
+/**
+ * First patched version, whether the feed stored a string or a version range.
+ *
+ * @param array $software Software row.
+ * @return string
+ */
+function wow_patched_version_text( $software ) {
+	if ( ! isset( $software['patched_versions'] ) ) {
+		return '';
+	}
+
+	$patched = $software['patched_versions'];
+	if ( is_string( $patched ) || is_numeric( $patched ) ) {
+		return wow_feed_text( $patched );
+	}
+	if ( ! is_array( $patched ) || ! isset( $patched[0] ) ) {
+		return '';
+	}
+
+	$first = $patched[0];
+	if ( is_string( $first ) || is_numeric( $first ) ) {
+		return wow_feed_text( $first );
+	}
+	if ( is_array( $first ) ) {
+		if ( isset( $first['version'] ) ) {
+			return wow_feed_text( $first['version'] );
+		}
+		if ( isset( $first['from_version'] ) ) {
+			return wow_feed_text( $first['from_version'] );
+		}
+	}
+
+	return '';
+}
+
+/**
+ * Copy the fields a post needs and drop the rest of each feed record.
+ *
+ * @param array $vulnerabilities Feed records.
+ * @return array
+ */
+function wow_normalize_feed( &$vulnerabilities ) {
+	if ( ! is_array( $vulnerabilities ) ) {
+		return array();
+	}
+
+	$first = reset( $vulnerabilities );
+	if ( is_array( $first ) && ! empty( $first['normalized'] ) ) {
+		return $vulnerabilities;
+	}
+
+	$rows = array();
+	foreach ( array_keys( $vulnerabilities ) as $key ) {
+		$vuln = $vulnerabilities[ $key ];
+		unset( $vulnerabilities[ $key ] );
+		if ( ! is_array( $vuln ) ) {
+			continue;
+		}
+
+		$software_list = array();
+		if ( isset( $vuln['software'] ) && is_array( $vuln['software'] ) ) {
+			foreach ( $vuln['software'] as $software ) {
+				if ( ! is_array( $software ) ) {
+					continue;
+				}
+				$name = wow_feed_text( isset( $software['name'] ) ? $software['name'] : '' );
+				if ( '' === $name ) {
+					continue;
+				}
+				$type = wow_feed_text( isset( $software['type'] ) ? $software['type'] : '' );
+				$software_list[] = array(
+					'type'        => '' !== $type ? ucfirst( $type ) : __( 'Software', 'watch-out-wednesday' ),
+					'name'        => $name,
+					'patched'     => wow_patched_version_text( $software ),
+					'remediation' => wow_feed_text( isset( $software['remediation'] ) ? $software['remediation'] : '' ),
+				);
+			}
+		}
+		if ( empty( $software_list ) ) {
+			continue;
+		}
+
+		$published = isset( $vuln['published'] ) ? wow_parse_feed_datetime( $vuln['published'] ) : null;
+		$updated   = isset( $vuln['updated'] ) ? wow_parse_feed_datetime( $vuln['updated'] ) : null;
+		if ( ! $published && ! $updated ) {
+			continue;
+		}
+
+		$title = wow_feed_text( isset( $vuln['title'] ) ? $vuln['title'] : '' );
+		$links = array();
+		if ( ! empty( $vuln['references'] ) && is_array( $vuln['references'] ) ) {
+			foreach ( $vuln['references'] as $reference ) {
+				$text = wow_feed_text( $reference );
+				if ( '' !== $text ) {
+					$links[] = $text;
+				}
+			}
+		}
+
+		$rows[] = array(
+			'normalized' => true,
+			'published'  => $published ? $published->getTimestamp() : null,
+			'updated'    => $updated ? $updated->getTimestamp() : null,
+			'title'      => '' !== $title ? $title : __( 'Untitled vulnerability', 'watch-out-wednesday' ),
+			'copyright'  => wow_feed_text( isset( $vuln['copyright'] ) ? $vuln['copyright'] : '' ),
+			'references' => $links,
+			'software'   => $software_list,
+		);
+	}
+
+	return $rows;
+}
+
+/**
  * Build the post HTML for one Wednesday window.
  *
  * @param DateTimeImmutable $start_utc Window start in UTC.
@@ -646,65 +856,40 @@ function wow_generate_vuln_post_content( $start_utc, $end_utc, $vulnerabilities 
 		);
 	}
 
-	$post_content = $intro_text;
-	$total_vulns  = 0;
+	$vulnerabilities = wow_normalize_feed( $vulnerabilities );
+	$post_content    = $intro_text;
+	$total_vulns     = 0;
+	$start_ts        = $start_utc->getTimestamp();
+	$end_ts          = $end_utc->getTimestamp();
 
 	foreach ( $vulnerabilities as $vuln ) {
-		if ( ! is_array( $vuln ) ) {
-			continue;
-		}
-
-		$published_obj = isset( $vuln['published'] ) ? wow_parse_feed_datetime( $vuln['published'] ) : null;
-		$updated_obj   = isset( $vuln['updated'] ) ? wow_parse_feed_datetime( $vuln['updated'] ) : null;
-
-		$matches_published = $published_obj && $published_obj >= $start_utc && $published_obj <= $end_utc;
-		$matches_updated   = $updated_obj && $updated_obj >= $start_utc && $updated_obj <= $end_utc;
-
+		$matches_published = is_int( $vuln['published'] ) && $vuln['published'] >= $start_ts && $vuln['published'] <= $end_ts;
+		$matches_updated   = is_int( $vuln['updated'] ) && $vuln['updated'] >= $start_ts && $vuln['updated'] <= $end_ts;
 		if ( ! $matches_published && ! $matches_updated ) {
 			continue;
 		}
 
-		$software_list = array();
-		if ( isset( $vuln['software'] ) && is_array( $vuln['software'] ) ) {
-			foreach ( $vuln['software'] as $software ) {
-				if ( is_array( $software ) && ! empty( $software['name'] ) ) {
-					$software_list[] = $software;
-				}
-			}
-		}
-		if ( empty( $software_list ) ) {
-			continue;
-		}
-
 		$total_vulns++;
-		$title = isset( $vuln['title'] ) ? sanitize_text_field( $vuln['title'] ) : __( 'Untitled vulnerability', 'watch-out-wednesday' );
+		$post_content .= '<h2>' . esc_html( $vuln['title'] ) . '</h2>';
 
-		$post_content .= '<h2>' . esc_html( $title ) . '</h2>';
+		foreach ( $vuln['software'] as $software ) {
+			$patched_version = '' !== $software['patched'] ? $software['patched'] : __( 'N/A', 'watch-out-wednesday' );
+			$remediation     = '' !== $software['remediation'] ? $software['remediation'] : __( 'No remediation info', 'watch-out-wednesday' );
 
-		foreach ( $software_list as $software ) {
-			$type            = isset( $software['type'] ) ? ucfirst( sanitize_text_field( $software['type'] ) ) : __( 'Software', 'watch-out-wednesday' );
-			$name            = sanitize_text_field( $software['name'] );
-			$patched_version = isset( $software['patched_versions'][0] ) ? sanitize_text_field( $software['patched_versions'][0] ) : __( 'N/A', 'watch-out-wednesday' );
-			$remediation     = isset( $software['remediation'] ) ? sanitize_text_field( $software['remediation'] ) : __( 'No remediation info', 'watch-out-wednesday' );
-
-			$post_content .= '<p><strong>' . esc_html( $type . ': ' . $name ) . '</strong><br />';
+			$post_content .= '<p><strong>' . esc_html( $software['type'] . ': ' . $software['name'] ) . '</strong><br />';
 			$post_content .= esc_html__( 'Patched version:', 'watch-out-wednesday' ) . ' ' . esc_html( $patched_version ) . '<br />';
 			$post_content .= esc_html__( 'Recommended action:', 'watch-out-wednesday' ) . ' ' . esc_html( $remediation ) . '</p>';
 		}
 
-		if ( ! empty( $vuln['copyright'] ) && is_string( $vuln['copyright'] ) ) {
+		if ( '' !== $vuln['copyright'] ) {
 			$post_content .= '<p>' . esc_html( $vuln['copyright'] ) . '</p>';
 		}
 
-		$links = array();
-		if ( ! empty( $vuln['references'] ) && is_array( $vuln['references'] ) ) {
+		if ( ! empty( $vuln['references'] ) ) {
+			$links = array();
 			foreach ( $vuln['references'] as $reference ) {
-				if ( is_string( $reference ) && '' !== $reference ) {
-					$links[] = '<a href="' . esc_url( $reference ) . '">' . esc_html( $reference ) . '</a>';
-				}
+				$links[] = '<a href="' . esc_url( $reference ) . '">' . esc_html( $reference ) . '</a>';
 			}
-		}
-		if ( ! empty( $links ) ) {
 			$post_content .= '<p><strong>' . esc_html__( 'Sources:', 'watch-out-wednesday' ) . '</strong><br />' . implode( '<br />', $links ) . '</p>';
 		}
 	}

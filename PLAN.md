@@ -2,7 +2,7 @@
 
 ## Current
 
-- Version 1.2.0 is the first GitHub Release, tag `v1.2.0`. There is no updater, so live sites change only when someone installs that zip. Check the staging smoke test before installing it on a production site.
+- Version 1.2.1 is the current GitHub Release, tag `v1.2.1`. A bulk backfill reports a settings message when PHP is out of memory or time. There is no updater, so live sites change only when someone installs that zip.
 - Local install is a copy into `wp-content/plugins/watch-out-wednesday`. Sites install the GitHub Release zip. Zips stay untracked.
 - CI runs `php -l` and `vendor/bin/phpunit` on PHP 7.4.
 - `uninstall.php` deletes plugin options and the weekly cron. Generated posts stay.

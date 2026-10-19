@@ -4,7 +4,7 @@ Tags: vulnerabilities, wordfence, posts, cron
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,10 @@ This plugin requests the Wordfence Intelligence v3 feed at the endpoint on the A
 The notification email is stored in the WordPress option wow_settings and is used only to send the generated post or an error through this site’s mail setup. It remains until you change the setting or delete the option. Deactivating the plugin does not delete it.
 
 == Changelog ==
+
+= 1.2.1 =
+* A bulk backfill that cannot finish reports the error on the settings screen instead of a blank server error.
+* The Wordfence download stops with a clear message when PHP does not have enough memory or time.
 
 = 1.2.0 =
 * Weekly posts can be turned off, and the Wednesday title uses the site timezone.

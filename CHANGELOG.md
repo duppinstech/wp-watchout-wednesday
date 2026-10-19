@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-10-18
+
+### Fixed
+- **A ten-week backfill no longer ends in a blank server error.** The run stops with a settings message when PHP is out of memory or time, and a feed record with an unexpected shape is skipped instead of crashing the request.
+
 ## [1.2.0] - 2026-10-18
 
 ### Added

@@ -4,7 +4,7 @@ _Shared, committed memory. Keep it factual and current. If the repo is public, s
 
 - **Product:** Watch Out Wednesday, a WordPress plugin. Owner: Odell Duppins / Duppins Technology.
 - **Repo:** https://github.com/oduppinsjr/wp-watchout-wednesday (public). GitHub's canonical URL is https://github.com/duppinstech/wp-watchout-wednesday.
-- **Current release:** 1.2.0, tag `v1.2.0`, documented 2026-10-18 in `CHANGELOG.md`. The GitHub Release zip is how sites install it. There is no updater.
+- **Current release:** 1.2.1, tag `v1.2.1`, documented 2026-10-18 in `CHANGELOG.md`. The GitHub Release zip is how sites install it. There is no updater.
 - **Distribution:** GitHub Release zip on `v*` tags (`release.yml`, `bin/build-zip.sh`). Not published on WordPress.org. `readme.txt` is kept in WordPress.org form. No updater in this tree yet.
 - **Key dependencies:** None at runtime. `composer.json` is development-only (PHPUnit 9, Brain Monkey). No `package.json`.
 - **Integrations:** Wordfence Intelligence v3. Default endpoint `https://www.wordfence.com/api/intelligence/v3/vulnerabilities/production`. The bearer key is `wow_settings['wordfence_api_key']`, entered on the Authentication tab by the person configuring the site. It is not hardcoded and it is not printed back into the settings page. Mail goes through `wp_mail`. Posts also write Yoast meta `_yoast_wpseo_metadesc` and `_yoast_wpseo_focuskw`.
@@ -17,7 +17,7 @@ Known items each department re-checks on every review until fixed. Remove lines 
 - **Legal:** Posts include the feed copyright field, source links, a Defiant line, and the accepted accuracy sentence. Counsel can still review the Intelligence terms. The terms page was not readable on 2026-10-18.
 - **Finance:** none open. Price stays free. Do not cache the full feed body in a transient.
 - **Product:** none open. Empty weeks are drafts. Bulk mail is one summary.
-- **Marketing:** none open. Plugin URI is the canonical GitHub URL. The download is the `v1.2.0` GitHub Release zip.
+- **Marketing:** none open. Plugin URI is the canonical GitHub URL. The download is the `v1.2.1` GitHub Release zip.
 - **Support:** none open. Vulnerability reports go to support@duppinstech.com.
-- **Ops:** No updater in the tree yet. Sites get the GitHub Release zip from tag `v1.2.0`. `uninstall.php` deletes `wow_settings` and `wow_last_run` and clears `wow_weekly_cron_event`. Generated posts stay.
+- **Ops:** No updater in the tree yet. Sites get the GitHub Release zip from tag `v1.2.1`. `uninstall.php` deletes `wow_settings` and `wow_last_run` and clears `wow_weekly_cron_event`. Generated posts stay.
 - **UX:** none open from the 2026-10-18 review.
