@@ -37,6 +37,18 @@ Wow_GitHub_Updater::boot(
 	)
 );
 
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-watch-out-wednesday-plugin-info.php';
+
+// Plugins screen links and the View details modal. No public guide URL, so Help is omitted.
+Wow_Plugin_Info::boot(
+	array(
+		'file'         => __FILE__,
+		'settings_url' => 'options-general.php?page=wow-settings',
+		'help_url'     => '',
+		'support_url'  => 'mailto:support@duppinstech.com',
+	)
+);
+
 require_once plugin_dir_path( __FILE__ ) . 'includes/email-handler.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/admin-settings.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/post-generator.php';

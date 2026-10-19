@@ -31,6 +31,7 @@ This repository is the plugin. It has no runtime Composer dependencies. Developm
 
 - `watch-out-wednesday.php` — Bootstrap. Schedules the weekly cron when the plugin is enabled, handles `admin_post_wow_manual_run`, prints admin notices, and boots the GitHub updater.
 - `includes/class-wow-github-updater.php` — GitHub Releases updater (standard v1.1.0).
+- `includes/class-watch-out-wednesday-plugin-info.php` — Plugins screen links and the View details modal. Tab text comes from `readme.txt`. Images live in `assets/wporg/`.
 - `includes/admin-settings.php` — Settings page at Settings → Watch Out Wednesday, with Content, Manual Run, and Authentication tabs. Registers `wow_settings`.
 - `includes/post-generator.php` — Fetches Wordfence, writes or updates the Wednesday post, sets the featured image and Yoast meta, and sends mail with `wp_mail`.
 - `includes/email-handler.php` — Legacy include. No functions. Mail lives in `post-generator.php`.
