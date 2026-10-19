@@ -1,6 +1,6 @@
 <?php
 /**
- * Remove plugin options and the weekly cron. Generated posts stay.
+ * Remove plugin options, the GitHub updater cache, and the weekly cron. Generated posts stay.
  *
  * @package Watch_Out_Wednesday
  */
@@ -35,3 +35,5 @@ if ( is_multisite() ) {
 } else {
 	wow_uninstall_site();
 }
+
+delete_site_option( 'wow_github_release' );

@@ -11,8 +11,8 @@
 - **Version:** 1.2.1
 - **License:** GPL-2.0-or-later
 - **Repo:** public. `origin` is https://github.com/oduppinsjr/wp-watchout-wednesday. GitHub's canonical URL is https://github.com/duppinstech/wp-watchout-wednesday.
-- **Distribution:** GitHub Release zip on `v*` tags. Not published on WordPress.org. `readme.txt` is kept in WordPress.org form.
-- **Updater:** none in this tree. Sites install the GitHub Release zip. An updater comes after this scaffold.
+- **Distribution:** GitHub Release zip on `v*` tags. Not published on WordPress.org. `readme.txt` is kept in WordPress.org form. The updater installs a newer release from Dashboard → Updates.
+- **Updater:** GitHub updater standard v1.1.0 (`includes/class-wow-github-updater.php`). Disable with `WOW_DISABLE_GITHUB_UPDATER`.
 - **Pro add-on:** none
 - **Price:** free
 - **Departments skipped:** none
@@ -29,7 +29,8 @@ This repository is the plugin. It has no runtime Composer dependencies. Developm
 
 ## Architecture
 
-- `watch-out-wednesday.php` — Bootstrap. Schedules the weekly cron when the plugin is enabled, handles `admin_post_wow_manual_run`, and prints admin notices.
+- `watch-out-wednesday.php` — Bootstrap. Schedules the weekly cron when the plugin is enabled, handles `admin_post_wow_manual_run`, prints admin notices, and boots the GitHub updater.
+- `includes/class-wow-github-updater.php` — GitHub Releases updater (standard v1.1.0).
 - `includes/admin-settings.php` — Settings page at Settings → Watch Out Wednesday, with Content, Manual Run, and Authentication tabs. Registers `wow_settings`.
 - `includes/post-generator.php` — Fetches Wordfence, writes or updates the Wednesday post, sets the featured image and Yoast meta, and sends mail with `wp_mail`.
 - `includes/email-handler.php` — Legacy include. No functions. Mail lives in `post-generator.php`.

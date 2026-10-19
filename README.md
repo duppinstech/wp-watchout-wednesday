@@ -16,7 +16,7 @@ Copyright (C) 2026 Duppins Technology
 
 ## Installation
 
-1. Install the GitHub Release zip into `wp-content/plugins/watch-out-wednesday` after a `v*` release exists. There is no automatic updater. This plugin is not on WordPress.org.
+1. Install the GitHub Release zip into `wp-content/plugins/watch-out-wednesday`. This plugin is not on WordPress.org. A newer GitHub Release shows under Dashboard → Updates.
 2. For local development, copy this directory into a WordPress site as `wp-content/plugins/watch-out-wednesday`.
 3. Activate **Watch Out Wednesday**.
 4. Open Settings → Watch Out Wednesday → Authentication, paste your Wordfence Intelligence v3 API key, and save. The plugin does not include a key.
@@ -55,7 +55,7 @@ vendor/bin/phpunit
 
 ## Release
 
-Releases are the GitHub Release zip (`watch-out-wednesday.zip`), built by `bin/build-zip.sh` and published by `.github/workflows/release.yml` when a `v*` tag is pushed. The tag must match the Version header and the Stable tag in `readme.txt`. Do not commit `*.zip`. There is no automatic updater.
+Releases are the GitHub Release zip (`watch-out-wednesday.zip`), built by `bin/build-zip.sh` and published by `.github/workflows/release.yml` when a `v*` tag is pushed. The tag must match the Version header, the `WOW_VERSION` constant, and the Stable tag in `readme.txt`. The release notes are written by `bin/release-notes.sh`. Installed sites receive that zip through the GitHub updater on Dashboard → Updates. Do not commit `*.zip`.
 
 ## License
 

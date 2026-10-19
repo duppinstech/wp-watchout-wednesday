@@ -20,6 +20,7 @@ jobs:
         with:
           php-version: '7.4'
           coverage: none
+          tools: composer
 
       - name: Lint
         run: |
@@ -27,12 +28,19 @@ jobs:
             | xargs -0 -n1 sh -c 'php -l "$0" || exit 1' > "$RUNNER_TEMP/lint.log" 2>&1 \
             || { grep -v '^No syntax errors' "$RUNNER_TEMP/lint.log"; exit 1; }
 
+      - name: Unit tests
+        run: |
+          composer install --no-interaction --prefer-dist
+          vendor/bin/phpunit
+
       - name: Check version matches tag
         run: |
           tag="${GITHUB_REF_NAME#v}"
-          header="$(sed -n 's/^[[:space:]*]*Version:[[:space:]]*//p' watch-out-wednesday.php | head -1 | tr -d '\r')"
-          echo "tag=$tag header=$header"
-          [ "$tag" = "$header" ] || { echo "::error::Tag v$tag does not match plugin Version $header"; exit 1; }
+          header="$(sed -n 's/^ \* Version:[[:space:]]*//p' watch-out-wednesday.php | head -1 | tr -d '\r')"
+          constant="$(sed -n "s/^define( 'WOW_VERSION', '\([^']*\)' );/\1/p" watch-out-wednesday.php | tr -d '\r')"
+          stable="$(sed -n 's/^Stable tag:[[:space:]]*//p' readme.txt | tr -d '\r')"
+          echo "tag=$tag header=$header constant=$constant stable=$stable"
+          [ "$tag" = "$header" ] && [ "$tag" = "$constant" ] && [ "$tag" = "$stable" ] || { echo "::error::Tag v$tag does not match plugin Version, WOW_VERSION, and readme Stable tag"; exit 1; }
 
       - name: Build zip
         run: bash bin/build-zip.sh "$PWD/watch-out-wednesday.zip"
@@ -48,19 +56,17 @@ jobs:
           secret="$(grep -E '^watch-out-wednesday/(\.git|\.env)' zip-list.txt || true)"
           [ -z "$secret" ] || { echo "::error::Git or env paths in zip:"; echo "$secret"; exit 1; }
 
-      - name: Extract changelog section
-        run: |
-          ver="${GITHUB_REF_NAME#v}"
-          awk -v h="## [$ver]" 'index($0, h) == 1 {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
-          [ -s notes.md ] || echo "Release $GITHUB_REF_NAME" > notes.md
+      - name: Write release notes
+        run: bash bin/release-notes.sh "${GITHUB_REF_NAME#v}" watch-out-wednesday.php release-notes.md
 
       - name: Create release (or update the asset if it exists)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" --notes-file release-notes.md
             gh release upload "$GITHUB_REF_NAME" watch-out-wednesday.zip --clobber
           else
             gh release create "$GITHUB_REF_NAME" watch-out-wednesday.zip \
-              --title "Watch Out Wednesday $GITHUB_REF_NAME" --notes-file notes.md --verify-tag
+              --title "Watch Out Wednesday $GITHUB_REF_NAME" --notes-file release-notes.md --verify-tag
           fi

@@ -2,6 +2,7 @@
 /**
  * Plugin Name: Watch Out Wednesday
  * Plugin URI: https://github.com/duppinstech/wp-watchout-wednesday
+ * Update URI: https://github.com/duppinstech/wp-watchout-wednesday
  * Description: Publishes a weekly Watch Out Wednesday post from the Wordfence Intelligence vulnerability feed. You supply the API key.
  * Version: 1.2.1
  * Author: Duppins Technology
@@ -19,6 +20,22 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+define( 'WOW_VERSION', '1.2.1' );
+
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-wow-github-updater.php';
+
+// Updates from GitHub Releases. Booted at load (not admin_init) so WP-Cron and background auto-updates see releases.
+// Disable with define( 'WOW_DISABLE_GITHUB_UPDATER', true ).
+Wow_GitHub_Updater::boot(
+	array(
+		'file'    => __FILE__,
+		'version' => WOW_VERSION,
+		'owner'   => 'duppinstech',
+		'repo'    => 'wp-watchout-wednesday',
+		'prefix'  => 'wow',
+	)
+);
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/email-handler.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/admin-settings.php';

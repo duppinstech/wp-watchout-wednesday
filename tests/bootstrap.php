@@ -17,6 +17,9 @@ if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
 if ( ! defined( 'DAY_IN_SECONDS' ) ) {
 	define( 'DAY_IN_SECONDS', 86400 );
 }
+if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+	define( 'HOUR_IN_SECONDS', 3600 );
+}
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
@@ -25,6 +28,7 @@ Monkey\setUp();
 
 Functions\when( 'add_action' )->justReturn( true );
 Functions\when( 'add_filter' )->justReturn( true );
+Functions\when( 'apply_filters' )->returnArg( 2 );
 Functions\when( 'register_activation_hook' )->justReturn( true );
 Functions\when( 'register_deactivation_hook' )->justReturn( true );
 Functions\when( 'plugin_dir_path' )->alias(
