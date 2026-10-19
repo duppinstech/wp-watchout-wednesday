@@ -10,8 +10,7 @@
 
 ## Open
 
-- Run the smoke test in `.claude/reviews/2026-10-18-0153-full-plugin-review-appendix.md` on a staging WordPress site before the first `v1.2.0` tag. (ops, 2026-10-18)
-- Counsel can still review the Wordfence Intelligence terms. The post now shows the feed’s copyright field, source links, a Defiant attribution line, and the accuracy sentence Odell accepted. (legal, 2026-10-18)
+None.
 
 ## Decisions needed (Odell)
 
@@ -21,6 +20,8 @@ None. The 2026-10-18 review decisions were accepted and built in 1.2.0.
 
 - [x] Release workflow. Decision 2026-10-18: ship the free plugin as a GitHub Release zip. An updater comes later.
 - [x] P0 and the accepted recommendations from the 2026-10-18 department review. Shipped in 1.2.0. Notes: `.claude/reviews/2026-10-18-0153-full-plugin-review.md`.
+- [x] Release-zip check from the 2026-10-18 smoke test. The archive root is `watch-out-wednesday/watch-out-wednesday.php`. `.github`, `.claude`, `AGENTS.md`, and `bin/` are absent. The “before the first `v1.2.0` tag” gate is closed: `v1.2.0` through `v1.3.1` are already published. The WordPress admin steps in that checklist were not run from this repository. The local compose project named in `CLAUDE.local.md` is not on this machine, and the repo has no Wordfence key.
+- [x] Wordfence attribution. Posts include the feed copyright field, source links, the Defiant line, and the accuracy sentence accepted on 2026-10-18. A lawyer has not reviewed the Intelligence terms page. That reading is outside this repository and is not unfinished plugin work.
 
 ## Declined
 
