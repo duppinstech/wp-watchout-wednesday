@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-10-18
+
+### Fixed
+- **The memory warning matches the limit already set.** A 158 MB feed is read on a 768M limit. When the limit really is too low, the message names a higher limit instead of telling the site to raise it to 512M.
+
 ## [1.3.0] - 2026-10-18
 
 ### Added

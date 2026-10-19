@@ -580,18 +580,21 @@ function wow_fetch_vulnerabilities() {
 		);
 	}
 
-	$body_length = strlen( $response_body );
-	if ( wow_feed_exceeds_memory( $body_length, wow_ini_bytes( ini_get( 'memory_limit' ) ), memory_get_usage( true ) ) ) {
+	$body_length  = strlen( $response_body );
+	$memory_limit = wow_ini_bytes( ini_get( 'memory_limit' ) );
+	if ( wow_feed_exceeds_memory( $body_length, $memory_limit, memory_get_usage( true ) ) ) {
 		$size_mb = max( 1, (int) round( $body_length / 1048576 ) );
 		$limit   = ini_get( 'memory_limit' );
+		$suggest = wow_feed_suggested_limit_label( $body_length, $memory_limit );
 		unset( $response_body );
 		return new WP_Error(
 			'wow_wordfence_memory',
 			sprintf(
-				/* translators: 1: feed size in megabytes, 2: PHP memory_limit value. */
-				__( 'The Wordfence feed is about %1$d MB. PHP memory_limit on this site is %2$s, which is too low to read that file. The run stopped instead of crashing. Raise memory_limit to at least 512M, then try again.', 'watch-out-wednesday' ),
+				/* translators: 1: feed size in megabytes, 2: current PHP memory_limit, 3: suggested memory_limit such as 768M. */
+				__( 'The Wordfence feed is about %1$d MB. PHP memory_limit on this site is %2$s, which does not leave enough free memory to read that file. The run stopped instead of crashing. Raise memory_limit to at least %3$s, then try again.', 'watch-out-wednesday' ),
 				$size_mb,
-				$limit ? $limit : __( 'unknown', 'watch-out-wednesday' )
+				$limit ? $limit : __( 'unknown', 'watch-out-wednesday' ),
+				$suggest
 			)
 		);
 	}
@@ -664,7 +667,19 @@ function wow_ini_bytes( $value ) {
 }
 
 /**
+ * Bytes of memory_limit a feed of this size needs, including room for WordPress.
+ *
+ * @param int $body_length JSON size in bytes.
+ * @return int
+ */
+function wow_feed_required_bytes( $body_length ) {
+	return ( (int) $body_length * 3 ) + ( 64 * 1048576 );
+}
+
+/**
  * Whether decoding this feed would exhaust the PHP memory limit.
+ *
+ * The downloaded file is already included in $memory_used, so it is not added again.
  *
  * @param int $body_length JSON size in bytes.
  * @param int $memory_limit memory_limit in bytes, or 0 when unlimited.
@@ -672,13 +687,63 @@ function wow_ini_bytes( $value ) {
  * @return bool
  */
 function wow_feed_exceeds_memory( $body_length, $memory_limit, $memory_used ) {
-	if ( (int) $memory_limit <= 0 ) {
+	$memory_limit = (int) $memory_limit;
+	if ( $memory_limit <= 0 ) {
 		return false;
 	}
 
-	$needed = ( (int) $body_length * 4 ) + 33554432;
+	$body_length = (int) $body_length;
+	$memory_used = (int) $memory_used;
+	if ( $memory_limit < wow_feed_required_bytes( $body_length ) ) {
+		return true;
+	}
 
-	return ( (int) $memory_used + $needed ) >= (int) $memory_limit;
+	$additional = $body_length + ( 32 * 1048576 );
+
+	return ( $memory_limit - $memory_used ) < $additional;
+}
+
+/**
+ * Round a byte count up to the next step. An exact multiple stays unchanged.
+ *
+ * @param int $bytes Value to round.
+ * @param int $step Step size in bytes.
+ * @return int
+ */
+function wow_round_up_bytes( $bytes, $step ) {
+	$bytes = (int) $bytes;
+	$step  = (int) $step;
+	if ( $step <= 1 ) {
+		return $bytes;
+	}
+
+	$mod = $bytes % $step;
+	if ( 0 === $mod ) {
+		return $bytes;
+	}
+
+	return $bytes + ( $step - $mod );
+}
+
+/**
+ * A memory_limit higher than the one already configured, sized for this feed.
+ *
+ * @param int $body_length JSON size in bytes.
+ * @param int $memory_limit Current limit in bytes.
+ * @return string Limit such as 768M.
+ */
+function wow_feed_suggested_limit_label( $body_length, $memory_limit ) {
+	$body_length  = (int) $body_length;
+	$memory_limit = (int) $memory_limit;
+	$target       = wow_feed_required_bytes( $body_length );
+	if ( $memory_limit > 0 ) {
+		$target = max( $target, $memory_limit + $body_length );
+	}
+
+	$rounded = wow_round_up_bytes( $target, 64 * 1048576 );
+	$mb      = (int) ( $rounded / 1048576 );
+
+	return $mb . 'M';
 }
 
 /**

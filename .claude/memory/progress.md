@@ -2,6 +2,7 @@
 
 Newest first. One line per meaningful step; reference PLAN.md items.
 
+- **2026-10-18:** Tagged `v1.3.1`. A 158 MB Wordfence feed is read when memory_limit is already 768M.
 - **2026-10-18:** Tagged `v1.3.0`. Plugins screen links and View details are in place, and updates install from GitHub Releases.
 - **2026-10-18:** Tagged `v1.2.1`. A bulk backfill reports a settings message when PHP is out of memory or time, instead of a blank server error.
 - **2026-10-18:** Tagged `v1.2.0` and pushed it so the Release workflow can publish the GitHub Release. No updater, so sites do not install it on their own.

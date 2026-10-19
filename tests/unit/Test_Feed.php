@@ -76,6 +76,10 @@ class Test_Feed extends Wow_Test_Case {
 		$this->assertTrue( wow_feed_exceeds_memory( 120 * 1048576, 256 * 1048576, 40 * 1048576 ) );
 		$this->assertFalse( wow_feed_exceeds_memory( 1024, 256 * 1048576, 40 * 1048576 ) );
 		$this->assertFalse( wow_feed_exceeds_memory( 120 * 1048576, 0, 40 * 1048576 ) );
+		$this->assertFalse( wow_feed_exceeds_memory( 158 * 1048576, 768 * 1048576, 400 * 1048576 ) );
+		$this->assertTrue( wow_feed_exceeds_memory( 158 * 1048576, 768 * 1048576, 700 * 1048576 ) );
+		$this->assertGreaterThan( 768, (int) wow_feed_suggested_limit_label( 158 * 1048576, 768 * 1048576 ) );
+		$this->assertNotSame( '512M', wow_feed_suggested_limit_label( 158 * 1048576, 768 * 1048576 ) );
 		$this->assertSame( 268435456, wow_ini_bytes( '256M' ) );
 		$this->assertSame( 0, wow_ini_bytes( '-1' ) );
 		$this->assertFalse( wow_is_public_https_url( 'http://www.wordfence.com/api/intelligence/v3/vulnerabilities/production' ) );

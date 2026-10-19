@@ -4,7 +4,7 @@ Tags: vulnerabilities, wordfence, posts, cron
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,10 @@ The notification email is stored in the WordPress option wow_settings and is use
 
 == Changelog ==
 
+= 1.3.1 =
+* A 158 MB feed on a 768M memory limit is read instead of being refused.
+* When memory really is too low, the message names a limit above the one already set.
+
 = 1.3.0 =
 * The plugins screen has a Settings link, plus Sponsor, View details, and Support.
 * View details shows the description, installation, questions, screenshots, and changelog.
@@ -123,6 +127,9 @@ The notification email is stored in the WordPress option wow_settings and is use
 * Settings saves and manual runs require a logged-in administrator and a valid request.
 
 == Upgrade Notice ==
+
+= 1.3.1 =
+A site that already has enough memory for the Wordfence feed is no longer told to raise the limit to 512M.
 
 = 1.3.0 =
 Newer releases appear under Dashboard → Updates, and the plugins screen includes Settings and View details.

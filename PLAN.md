@@ -2,7 +2,7 @@
 
 ## Current
 
-- Version 1.3.0 is the current GitHub Release, tag `v1.3.0`. The plugins screen shows Settings, Sponsor, View details, and Support. Updates install from GitHub Releases.
+- Version 1.3.1 is the current GitHub Release, tag `v1.3.1`. A 158 MB feed is read on a 768M memory limit. Updates install from GitHub Releases.
 - Local install is a copy into `wp-content/plugins/watch-out-wednesday`. Sites install the GitHub Release zip. Zips stay untracked.
 - CI runs `php -l` and `vendor/bin/phpunit` on PHP 7.4.
 - `uninstall.php` deletes plugin options and the weekly cron. Generated posts stay.
