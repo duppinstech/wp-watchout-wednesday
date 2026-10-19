@@ -18,7 +18,7 @@ Wordfence and Wordfence Intelligence are trademarks of Defiant, Inc. Watch Out W
 
 This plugin does not scan, patch, or protect the site. It publishes a recap.
 
-Features:
+= Features =
 
 * Weekly post when weekly posts are turned on.
 * Run the current week, one missed Wednesday, or a backfill.
@@ -26,15 +26,24 @@ Features:
 * A week with no vulnerabilities is saved as a draft.
 * Intro, outro, category, featured image, and one notification email.
 
+= Support =
+
+Support: [support@duppinstech.com](mailto:support@duppinstech.com). Made by [Duppins Technology](https://duppinstech.com).
+
 == Installation ==
 
-1. Download `watch-out-wednesday.zip` from the GitHub Release for a tagged version. This plugin is not on WordPress.org and does not update itself. For local development, copy the `watch-out-wednesday` folder to `/wp-content/plugins/`.
-2. Activate Watch Out Wednesday.
-3. Open Settings → Watch Out Wednesday → Authentication, paste your Wordfence Intelligence v3 API key, and save. Watch Out Wednesday does not include a key.
-4. On the Content tab, set the intro, outro, category, featured image, and notification email. Turn on Enable weekly posts for the Wednesday run and save.
-5. Use the Manual Run tab to publish the current week, one missed Wednesday, or a backfill.
+1. Download `watch-out-wednesday.zip` from the latest GitHub Release. This plugin is not on WordPress.org.
+2. In wp-admin, go to Plugins → Add New → Upload Plugin, choose the zip, and click Install Now.
+3. Activate Watch Out Wednesday.
+4. Open Settings → Watch Out Wednesday → Authentication, paste your Wordfence Intelligence v3 API key, and save. Watch Out Wednesday does not include a key.
+5. On the Content tab, set the intro, outro, category, featured image, and notification email. Turn on Enable weekly posts for the Wednesday run and save.
+6. Use the Manual Run tab to publish the current week, one missed Wednesday, or a backfill.
 
 The feed is one full download. Wordfence’s February 2026 notice described it at about 123 MB. A PHP memory limit of 128 MB can fail a run. Give the site enough memory and time for that download. The plugin does not store the feed.
+
+= Updates =
+
+New releases appear under Dashboard → Updates.
 
 == Frequently Asked Questions ==
 
@@ -62,29 +71,53 @@ The post is saved as a draft. It is not published.
 
 Each run writes the Yoast meta description and focus keyphrase on that post. A rerun replaces both values. The focus keyphrase is `WordPress vulnerability`.
 
+= How do I update the plugin? =
+
+Open Dashboard → Updates. A newer GitHub Release appears there. This plugin is not on WordPress.org, so WordPress.org cannot replace it.
+
 = What happens if I deactivate or delete the plugin? =
 
-Deactivating stops the weekly cron. It does not delete posts or settings. Deleting the plugin removes `wow_settings` (including the API key) and `wow_last_run`. Generated posts stay. There is no automatic update. Install a newer GitHub Release zip over the folder.
+Deactivating stops the weekly cron. It does not delete posts or settings. Deleting the plugin removes its settings, including the API key, and the stored last run. Generated posts stay.
 
 == External services ==
 
 This plugin requests the Wordfence Intelligence v3 feed at the endpoint on the Authentication tab (default: https://www.wordfence.com/api/intelligence/v3/vulnerabilities/production). Each request sends that host the API key you entered. The connecting server’s IP address is visible to Wordfence as part of a normal HTTPS request. No visitor personal data is sent. Wordfence Intelligence terms: https://www.wordfence.com/wordfence-intelligence-terms-and-conditions/ Wordfence privacy policy: https://www.wordfence.com/privacy-policy/
 
-The notification email is stored in the WordPress option wow_settings and is used only to send the generated post or an error through this site’s mail setup. It remains until you change the setting or delete the option. Deactivating the plugin does not delete it.
+The notification email is stored in the WordPress option wow_settings and is used only to send the generated post or an error through this site’s mail setup. It remains until you change the setting or delete the plugin. Deactivating the plugin does not delete it.
+
+== Screenshots ==
+
+1. Content settings for the weekly post, including the intro, outro, category, featured image, and notification email.
+2. Manual Run for the current week, one missed Wednesday, or a backfill.
+3. Authentication, where the Wordfence Intelligence API key is saved.
 
 == Changelog ==
 
 = 1.2.1 =
 * A bulk backfill that cannot finish reports the error on the settings screen instead of a blank server error.
 * The Wordfence download stops with a clear message when PHP does not have enough memory or time.
+* A feed record with an unexpected shape is skipped instead of crashing the run.
 
 = 1.2.0 =
-* Weekly posts can be turned off, and the Wednesday title uses the site timezone.
-* Empty weeks are saved as drafts. A backfill sends one summary email.
-* Generated posts list every affected software item and show Wordfence attribution.
-* The API key is not displayed on the settings screen. Deleting the plugin removes its settings.
+* Weekly posts can be turned off. Saving the Content tab with the switch unchecked stops the weekly cron.
+* The Wednesday title and post date use the site timezone. A rerun still finds a post saved under the old title.
+* The weekly cron publishes the Wednesday that was due, including when the cron runs late.
+* A week with no vulnerabilities is saved as a draft. It is not published.
+* A backfill sends one summary email.
+* The post lists every affected plugin or theme, and shows Wordfence attribution.
+* The API key is not displayed on the settings screen. Leave the field blank to keep the saved key.
+* The saved feed URL must be a public https address.
+* Settings fields have labels, and the weekly-post switch can be focused from the keyboard.
+* Run Current Week Now is the primary button. A backfill of more than one week asks for confirmation.
+* Deleting the plugin removes its settings, the stored API key, and the weekly cron. Generated posts stay.
+* Settings saves and manual runs require a logged-in administrator and a valid request.
 
 = 1.1.0 =
 * Added manual run, missed-Wednesday rerun, and bulk backfill.
-* **The settings screen is under Settings → Watch Out Wednesday.**
+* The settings screen is under Settings → Watch Out Wednesday.
 * Settings saves and manual runs require a logged-in administrator and a valid request.
+
+== Upgrade Notice ==
+
+= 1.2.1 =
+A backfill that runs out of memory or time now stops with a settings message instead of a blank server error.
