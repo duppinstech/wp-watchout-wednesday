@@ -2,11 +2,11 @@
 
 ## Current
 
-- Version 1.2.1 is the current GitHub Release, tag `v1.2.1`. A bulk backfill reports a settings message when PHP is out of memory or time. There is no updater, so live sites change only when someone installs that zip.
+- Version 1.3.0 is the current GitHub Release, tag `v1.3.0`. The plugins screen shows Settings, Sponsor, View details, and Support. Updates install from GitHub Releases.
 - Local install is a copy into `wp-content/plugins/watch-out-wednesday`. Sites install the GitHub Release zip. Zips stay untracked.
 - CI runs `php -l` and `vendor/bin/phpunit` on PHP 7.4.
 - `uninstall.php` deletes plugin options and the weekly cron. Generated posts stay.
-- There is no updater.
+- The GitHub updater is `includes/class-wow-github-updater.php` (standard v1.1.0). Disable it with `WOW_DISABLE_GITHUB_UPDATER`.
 
 ## Open
 

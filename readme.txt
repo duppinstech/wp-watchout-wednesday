@@ -4,7 +4,7 @@ Tags: vulnerabilities, wordfence, posts, cron
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ The notification email is stored in the WordPress option wow_settings and is use
 
 == Changelog ==
 
+= 1.3.0 =
+* The plugins screen has a Settings link, plus Sponsor, View details, and Support.
+* View details shows the description, installation, questions, screenshots, and changelog.
+* A newer release appears under Dashboard → Updates. WordPress.org cannot replace this plugin.
+
 = 1.2.1 =
 * A bulk backfill that cannot finish reports the error on the settings screen instead of a blank server error.
 * The Wordfence download stops with a clear message when PHP does not have enough memory or time.
@@ -118,6 +123,9 @@ The notification email is stored in the WordPress option wow_settings and is use
 * Settings saves and manual runs require a logged-in administrator and a valid request.
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+Newer releases appear under Dashboard → Updates, and the plugins screen includes Settings and View details.
 
 = 1.2.1 =
 A backfill that runs out of memory or time now stops with a settings message instead of a blank server error.

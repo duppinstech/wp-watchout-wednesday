@@ -8,7 +8,7 @@
 - **Prefix:** `wow_`
 - **Text domain:** `watch-out-wednesday`
 - **Floor:** WordPress 6.0, PHP 7.4 (`readme.txt`). Tested up to 6.9.
-- **Version:** 1.2.1
+- **Version:** 1.3.0
 - **License:** GPL-2.0-or-later
 - **Repo:** public. `origin` is https://github.com/oduppinsjr/wp-watchout-wednesday. GitHub's canonical URL is https://github.com/duppinstech/wp-watchout-wednesday.
 - **Distribution:** GitHub Release zip on `v*` tags. Not published on WordPress.org. `readme.txt` is kept in WordPress.org form. The updater installs a newer release from Dashboard → Updates.

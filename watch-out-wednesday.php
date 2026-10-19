@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/duppinstech/wp-watchout-wednesday
  * Update URI: https://github.com/duppinstech/wp-watchout-wednesday
  * Description: Publishes a weekly Watch Out Wednesday post from the Wordfence Intelligence vulnerability feed. You supply the API key.
- * Version: 1.2.1
+ * Version: 1.3.0
  * Author: Duppins Technology
  * Author URI: https://duppinstech.com
  * License: GPL-2.0-or-later
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WOW_VERSION', '1.2.1' );
+define( 'WOW_VERSION', '1.3.0' );
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wow-github-updater.php';
 
@@ -212,8 +212,8 @@ function wow_enqueue_admin_assets( $hook ) {
 	$script_path = plugin_dir_path( __FILE__ ) . 'js/admin-script.js';
 
 	wp_enqueue_media();
-	wp_enqueue_style( 'wow-admin-style', plugin_dir_url( __FILE__ ) . 'css/admin-style.css', array(), file_exists( $style_path ) ? filemtime( $style_path ) : '1.2.1' );
-	wp_enqueue_script( 'wow-admin-script', plugin_dir_url( __FILE__ ) . 'js/admin-script.js', array( 'jquery' ), file_exists( $script_path ) ? filemtime( $script_path ) : '1.2.1', true );
+	wp_enqueue_style( 'wow-admin-style', plugin_dir_url( __FILE__ ) . 'css/admin-style.css', array(), file_exists( $style_path ) ? filemtime( $style_path ) : '1.3.0' );
+	wp_enqueue_script( 'wow-admin-script', plugin_dir_url( __FILE__ ) . 'js/admin-script.js', array( 'jquery' ), file_exists( $script_path ) ? filemtime( $script_path ) : '1.3.0', true );
 	wp_localize_script(
 		'wow-admin-script',
 		'wowAdmin',
